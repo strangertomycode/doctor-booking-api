@@ -13,31 +13,31 @@ from .serializers import (
     RegisterSerializer,
     UserSerializer,
 )
+from rest_framework.exceptions import AuthenticationFailed
 
 
 class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
-    email = None
-
     username_field = User.EMAIL_FIELD
 
     def validate(self, attrs):
 
-        credentials = {"email": attrs.get("email"), "password": attrs.get("password")}
+        credentials = {
+            "email": attrs.get("email"),
+            "password": attrs.get("password"),
+        }
 
         user = authenticate(request=self.context.get("request"), **credentials)
 
-        if user is None:
-            raise Exception("Invalid email or password.")
+        if user is None or not user.is_active:
+            raise AuthenticationFailed("Invalid email or password.")
 
         refresh = self.get_token(user)
 
-        data = {
+        return {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
             "user": UserSerializer(user).data,
         }
-
-        return data
 
 
 class EmailLoginView(TokenObtainPairView):
