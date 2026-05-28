@@ -53,6 +53,8 @@ class RegisterView(CreateAPIView):
 class MeView(RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    serializer_class = UserSerializer
+
     def get(self, request):
 
         serializer = UserSerializer(request.user)
