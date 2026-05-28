@@ -23,7 +23,7 @@ urlpatterns = [
         name="token_refresh",
     ),
     # Appointments
-    # path("api/v1/appointments/", include("appointments.urls")),
+    path("api/v1/appointments/", include("appointments.urls")),
     # OpenAPI Schema
     path(
         "api/schema/",
