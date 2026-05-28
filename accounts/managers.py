@@ -2,6 +2,8 @@ from django.contrib.auth.base_user import BaseUserManager
 
 
 class CustomUserManager(BaseUserManager):
+    use_in_migrations = True
+
     def create_user(self, email, password=None, **extra_fields):
 
         if not email:

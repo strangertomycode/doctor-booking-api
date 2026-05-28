@@ -1,7 +1,11 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 
-from .models import User, DoctorProfile
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+
+from .models import (
+    User,
+    DoctorProfile,
+)
 
 
 class DoctorProfileInline(admin.StackedInline):
@@ -13,13 +17,9 @@ class DoctorProfileInline(admin.StackedInline):
 
     extra = 0
 
-    exclude = ["verified_by"]
-
 
 @admin.register(User)
-class CustomUserAdmin(UserAdmin):
-    model = User
-
+class UserAdmin(BaseUserAdmin):
     inlines = [DoctorProfileInline]
 
     list_display = [
@@ -27,15 +27,12 @@ class CustomUserAdmin(UserAdmin):
         "email",
         "full_name",
         "role",
-        "gender",
-        "phone_number",
         "is_staff",
         "is_active",
     ]
 
     list_filter = [
         "role",
-        "gender",
         "is_staff",
         "is_active",
     ]
@@ -43,7 +40,6 @@ class CustomUserAdmin(UserAdmin):
     search_fields = [
         "email",
         "full_name",
-        "phone_number",
     ]
 
     ordering = ["id"]
@@ -55,7 +51,7 @@ class CustomUserAdmin(UserAdmin):
 
     fieldsets = (
         (
-            "Authentication",
+            "Authentication Info",
             {
                 "fields": (
                     "email",
@@ -64,7 +60,7 @@ class CustomUserAdmin(UserAdmin):
             },
         ),
         (
-            "Personal Information",
+            "Personal Info",
             {
                 "fields": (
                     "full_name",
@@ -74,12 +70,9 @@ class CustomUserAdmin(UserAdmin):
                     "blood_group",
                     "medical_history",
                     "allergies",
+                    "role",
                 )
             },
-        ),
-        (
-            "Role Information",
-            {"fields": ("role",)},
         ),
         (
             "Permissions",
@@ -111,20 +104,15 @@ class CustomUserAdmin(UserAdmin):
                 "classes": ("wide",),
                 "fields": (
                     "email",
-                    "full_name",
-                    "role",
                     "password1",
                     "password2",
+                    "full_name",
+                    "role",
                     "is_staff",
-                    "is_active",
+                    "is_superuser",
                 ),
             },
         ),
-    )
-
-    filter_horizontal = (
-        "groups",
-        "user_permissions",
     )
 
 
@@ -132,59 +120,79 @@ class CustomUserAdmin(UserAdmin):
 class DoctorProfileAdmin(admin.ModelAdmin):
     list_display = [
         "id",
-        "get_doctor_name",
+        "user",
         "specialization",
-        "qualification",
-        "years_of_experience",
-        "hospital_name",
-        "city",
         "verification_status",
+        "years_of_experience",
+        "consultation_fee",
     ]
 
     list_filter = [
         "verification_status",
         "specialization",
-        "city",
     ]
 
     search_fields = [
         "user__full_name",
         "user__email",
         "specialization",
-        "hospital_name",
     ]
 
-    ordering = ["id"]
+    autocomplete_fields = [
+        "user",
+        "verified_by",
+    ]
+
+    fieldsets = (
+        (
+            "Doctor Info",
+            {
+                "fields": (
+                    "user",
+                    "specialization",
+                    "qualification",
+                    "years_of_experience",
+                    "consultation_fee",
+                    "bio",
+                    "hospital_name",
+                    "city",
+                )
+            },
+        ),
+        (
+            "Verification",
+            {
+                "fields": (
+                    "verification_status",
+                    "verified_by",
+                    "verified_at",
+                    "rejection_reason",
+                )
+            },
+        ),
+    )
+
+    actions = [
+        "approve_doctors",
+        "reject_doctors",
+    ]
 
     readonly_fields = [
         "verified_at",
     ]
 
-    actions = [
-        "approve_doctors",
-        "reject_doctors",
-        "suspend_doctors",
-    ]
-
-    def get_doctor_name(self, obj):
-        return obj.user.full_name
-
-    get_doctor_name.short_description = "Doctor"
-
+    @admin.action(description="Approve selected doctors")
     def approve_doctors(self, request, queryset):
 
-        queryset.update(verification_status=DoctorProfile.APPROVED)
+        queryset.update(
+            verification_status="approved",
+            verified_by=request.user,
+        )
 
-    approve_doctors.short_description = "Approve selected doctors"
-
+    @admin.action(description="Reject selected doctors")
     def reject_doctors(self, request, queryset):
 
-        queryset.update(verification_status=DoctorProfile.REJECTED)
-
-    reject_doctors.short_description = "Reject selected doctors"
-
-    def suspend_doctors(self, request, queryset):
-
-        queryset.update(verification_status=DoctorProfile.SUSPENDED)
-
-    suspend_doctors.short_description = "Suspend selected doctors"
+        queryset.update(
+            verification_status="rejected",
+            verified_by=request.user,
+        )
