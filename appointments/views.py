@@ -1,10 +1,14 @@
-from django.db.models import Q
 from django.utils import timezone
 
-from rest_framework import generics, status, permissions
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView,
+    CreateAPIView,
+    UpdateAPIView,
+)
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import (
@@ -18,6 +22,8 @@ from .serializers import (
     AvailabilitySlotSerializer,
     AppointmentSerializer,
     AppointmentStatusUpdateSerializer,
+    CancelAppointmentSerializer,
+    PatientMedicalHistorySerializer,
 )
 
 from .permissions import (
@@ -35,7 +41,7 @@ from accounts.models import (
 )
 
 
-class AvailabilityRuleCreateView(generics.CreateAPIView):
+class AvailabilityRuleCreateView(CreateAPIView):
     serializer_class = AvailabilityRuleSerializer
 
     permission_classes = [
@@ -49,7 +55,7 @@ class AvailabilityRuleCreateView(generics.CreateAPIView):
         serializer.save(doctor=self.request.user)
 
 
-class MyAvailabilityRulesView(generics.ListAPIView):
+class MyAvailabilityRulesView(ListAPIView):
     serializer_class = AvailabilityRuleSerializer
 
     permission_classes = [
@@ -59,13 +65,16 @@ class MyAvailabilityRulesView(generics.ListAPIView):
 
     def get_queryset(self):
 
+        if getattr(self, "swagger_fake_view", False):
+            return AvailabilitySlot.objects.none()
+
         return AvailabilityRule.objects.filter(doctor=self.request.user).order_by(
             "weekday",
             "start_time",
         )
 
 
-class DoctorAvailableSlotsView(generics.ListAPIView):
+class DoctorAvailableSlotsView(ListAPIView):
     serializer_class = AvailabilitySlotSerializer
 
     permission_classes = [
@@ -77,6 +86,9 @@ class DoctorAvailableSlotsView(generics.ListAPIView):
     filterset_fields = ["date"]
 
     def get_queryset(self):
+
+        if getattr(self, "swagger_fake_view", False):
+            return AvailabilitySlot.objects.none()
 
         doctor_id = self.kwargs["doctor_id"]
 
@@ -99,7 +111,7 @@ class DoctorAvailableSlotsView(generics.ListAPIView):
         )
 
 
-class AppointmentCreateView(generics.CreateAPIView):
+class AppointmentCreateView(CreateAPIView):
     serializer_class = AppointmentSerializer
 
     permission_classes = [
@@ -108,7 +120,8 @@ class AppointmentCreateView(generics.CreateAPIView):
     ]
 
 
-class MyAppointmentsView(generics.ListAPIView):
+class MyAppointmentsView(ListAPIView):
+    queryset = Appointment.objects.none()
     serializer_class = AppointmentSerializer
 
     permission_classes = [
@@ -124,6 +137,9 @@ class MyAppointmentsView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
+
+        if getattr(self, "swagger_fake_view", False):
+            return AvailabilitySlot.objects.none()
 
         user = self.request.user
 
@@ -143,7 +159,8 @@ class MyAppointmentsView(generics.ListAPIView):
         return queryset.order_by("-created_at")
 
 
-class AppointmentDetailView(generics.RetrieveAPIView):
+class AppointmentDetailView(RetrieveAPIView):
+    queryset = Appointment.objects.none()
     serializer_class = AppointmentSerializer
 
     permission_classes = [
@@ -153,6 +170,9 @@ class AppointmentDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
 
+        if getattr(self, "swagger_fake_view", False):
+            return AvailabilitySlot.objects.none()
+
         return Appointment.objects.select_related(
             "patient",
             "doctor",
@@ -161,7 +181,8 @@ class AppointmentDetailView(generics.RetrieveAPIView):
         )
 
 
-class AppointmentStatusUpdateView(generics.UpdateAPIView):
+class AppointmentStatusUpdateView(UpdateAPIView):
+    queryset = Appointment.objects.none()
     serializer_class = AppointmentStatusUpdateSerializer
 
     permission_classes = [
@@ -176,6 +197,9 @@ class AppointmentStatusUpdateView(generics.UpdateAPIView):
 
     def get_queryset(self):
 
+        if getattr(self, "swagger_fake_view", False):
+            return AvailabilitySlot.objects.none()
+
         return Appointment.objects.filter(doctor=self.request.user)
 
 
@@ -184,6 +208,8 @@ class CancelAppointmentView(APIView):
         permissions.IsAuthenticated,
         CanCancelAppointment,
     ]
+
+    serializer_class = CancelAppointmentSerializer
 
     def post(self, request, pk):
 
@@ -220,7 +246,8 @@ class CancelAppointmentView(APIView):
         )
 
 
-class DoctorAppointmentDashboardView(generics.ListAPIView):
+class DoctorAppointmentDashboardView(ListAPIView):
+    queryset = Appointment.objects.none()
     serializer_class = AppointmentSerializer
 
     permission_classes = [
@@ -238,6 +265,9 @@ class DoctorAppointmentDashboardView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
+
+        if getattr(self, "swagger_fake_view", False):
+            return AvailabilitySlot.objects.none()
 
         today = timezone.localdate()
 
@@ -259,12 +289,14 @@ class DoctorAppointmentDashboardView(generics.ListAPIView):
         )
 
 
-class PatientMedicalHistoryView(generics.RetrieveAPIView):
+class PatientMedicalHistoryView(RetrieveAPIView):
     permission_classes = [
         permissions.IsAuthenticated,
         IsDoctor,
         IsVerifiedDoctor,
     ]
+
+    serializer_class = PatientMedicalHistorySerializer
 
     def get(self, request, patient_id):
 

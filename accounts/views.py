@@ -50,7 +50,7 @@ class RegisterView(CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
 
-class MeView(APIView):
+class MeView(RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):

@@ -10,6 +10,7 @@ from rest_framework.serializers import (
     DecimalField,
     ValidationError,
     SerializerMethodField,
+    Serializer,
 )
 
 from .models import (
@@ -165,7 +166,7 @@ class AvailabilitySlotSerializer(ModelSerializer):
             "is_booked",
         ]
 
-    def get_weekday(self, obj):
+    def get_weekday(self, obj) -> str:
 
         return obj.date.strftime("%A")
 
@@ -296,3 +297,22 @@ class AppointmentStatusUpdateSerializer(ModelSerializer):
             instance.completed_at = timezone.now()
 
         return super().update(instance, validated_data)
+
+
+class CancelAppointmentSerializer(Serializer):
+    cancellation_reason = CharField(
+        required=False,
+        allow_blank=True,
+    )
+
+
+class PatientMedicalHistorySerializer(Serializer):
+    patient_id = IntegerField()
+
+    full_name = CharField()
+
+    blood_group = CharField()
+
+    medical_history = CharField()
+
+    allergies = CharField()
