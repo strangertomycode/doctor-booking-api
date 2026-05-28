@@ -231,9 +231,9 @@ class AppointmentSerializer(ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
 
-        slot = AvailabilitySlot.objects.select_for_update().get(
-            id=validated_data["slot"].id
-        )
+        slot_data = validated_data.pop("slot")
+
+        slot = AvailabilitySlot.objects.select_for_update().get(id=slot_data.id)
 
         if slot.is_booked:
             raise ValidationError("This slot has already been booked.")
