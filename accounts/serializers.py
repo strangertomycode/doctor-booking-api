@@ -20,7 +20,9 @@ class DoctorProfileSerializer(ModelSerializer):
             "bio",
             "hospital_name",
             "city",
-            "is_verified",
+            "verification_status",
+            "verified_at",
+            "rejection_reason",
         ]
 
         read_only_fields = ["is_verified"]
