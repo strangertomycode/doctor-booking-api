@@ -3,7 +3,14 @@ from datetime import datetime, timedelta
 from django.db import transaction
 from django.utils import timezone
 
-from rest_framework import serializers
+from rest_framework.serializers import (
+    ModelSerializer,
+    CharField,
+    IntegerField,
+    DecimalField,
+    ValidationError,
+    SerializerMethodField,
+)
 
 from .models import (
     AvailabilityRule,
@@ -17,29 +24,23 @@ from accounts.models import (
 )
 
 
-class DoctorBasicSerializer(serializers.ModelSerializer):
-    specialization = serializers.CharField(
-        source="doctor_profile.specialization", read_only=True
-    )
+class DoctorBasicSerializer(ModelSerializer):
+    specialization = CharField(source="doctor_profile.specialization", read_only=True)
 
-    qualification = serializers.CharField(
-        source="doctor_profile.qualification", read_only=True
-    )
+    qualification = CharField(source="doctor_profile.qualification", read_only=True)
 
-    years_of_experience = serializers.IntegerField(
+    years_of_experience = IntegerField(
         source="doctor_profile.years_of_experience", read_only=True
     )
 
-    consultation_fee = serializers.DecimalField(
+    consultation_fee = DecimalField(
         source="doctor_profile.consultation_fee",
         max_digits=8,
         decimal_places=2,
         read_only=True,
     )
 
-    hospital_name = serializers.CharField(
-        source="doctor_profile.hospital_name", read_only=True
-    )
+    hospital_name = CharField(source="doctor_profile.hospital_name", read_only=True)
 
     class Meta:
         model = User
@@ -56,8 +57,8 @@ class DoctorBasicSerializer(serializers.ModelSerializer):
         ]
 
 
-class AvailabilityRuleSerializer(serializers.ModelSerializer):
-    doctor_name = serializers.CharField(source="doctor.full_name", read_only=True)
+class AvailabilityRuleSerializer(ModelSerializer):
+    doctor_name = CharField(source="doctor.full_name", read_only=True)
 
     class Meta:
         model = AvailabilityRule
@@ -90,12 +91,12 @@ class AvailabilityRuleSerializer(serializers.ModelSerializer):
         end_time = attrs.get("end_time")
 
         if start_time >= end_time:
-            raise serializers.ValidationError("End time must be after start time.")
+            raise ValidationError("End time must be after start time.")
 
         slot_duration = attrs.get("slot_duration")
 
         if slot_duration <= 0:
-            raise serializers.ValidationError("Slot duration must be greater than 0.")
+            raise ValidationError("Slot duration must be greater than 0.")
 
         return attrs
 
@@ -146,10 +147,10 @@ class AvailabilityRuleSerializer(serializers.ModelSerializer):
                 )
 
 
-class AvailabilitySlotSerializer(serializers.ModelSerializer):
+class AvailabilitySlotSerializer(ModelSerializer):
     doctor = DoctorBasicSerializer(read_only=True)
 
-    weekday = serializers.SerializerMethodField()
+    weekday = SerializerMethodField()
 
     class Meta:
         model = AvailabilitySlot
@@ -169,8 +170,8 @@ class AvailabilitySlotSerializer(serializers.ModelSerializer):
         return obj.date.strftime("%A")
 
 
-class AppointmentSerializer(serializers.ModelSerializer):
-    patient_name = serializers.CharField(source="patient.full_name", read_only=True)
+class AppointmentSerializer(ModelSerializer):
+    patient_name = CharField(source="patient.full_name", read_only=True)
 
     doctor = DoctorBasicSerializer(read_only=True)
 
@@ -216,13 +217,13 @@ class AppointmentSerializer(serializers.ModelSerializer):
     def validate_slot(self, slot):
 
         if slot.is_booked:
-            raise serializers.ValidationError("This slot is already booked.")
+            raise ValidationError("This slot is already booked.")
 
         if slot.date < timezone.localdate():
-            raise serializers.ValidationError("Cannot book past slots.")
+            raise ValidationError("Cannot book past slots.")
 
         if slot.doctor.doctor_profile.verification_status != DoctorProfile.APPROVED:
-            raise serializers.ValidationError("Doctor is not verified.")
+            raise ValidationError("Doctor is not verified.")
 
         return slot
 
@@ -234,7 +235,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         )
 
         if slot.is_booked:
-            raise serializers.ValidationError("This slot has already been booked.")
+            raise ValidationError("This slot has already been booked.")
 
         slot.is_booked = True
         slot.save()
@@ -249,7 +250,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         return appointment
 
 
-class AppointmentStatusUpdateSerializer(serializers.ModelSerializer):
+class AppointmentStatusUpdateSerializer(ModelSerializer):
     class Meta:
         model = Appointment
 
@@ -269,17 +270,13 @@ class AppointmentStatusUpdateSerializer(serializers.ModelSerializer):
         new_status = attrs.get("status", appointment.status)
 
         if appointment.status == Appointment.CANCELLED:
-            raise serializers.ValidationError(
-                "Cancelled appointments cannot be updated."
-            )
+            raise ValidationError("Cancelled appointments cannot be updated.")
 
         if appointment.status == Appointment.COMPLETED:
-            raise serializers.ValidationError(
-                "Completed appointments cannot be updated."
-            )
+            raise ValidationError("Completed appointments cannot be updated.")
 
         if new_status == Appointment.COMPLETED and not attrs.get("prescription"):
-            raise serializers.ValidationError(
+            raise ValidationError(
                 "Prescription is required when completing appointment."
             )
 
