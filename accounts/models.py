@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from datetime import date
+from .managers import CustomUserManager
 
 
 class User(AbstractUser):
@@ -67,6 +68,8 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
 
     REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
 
     @property
     def age(self):
