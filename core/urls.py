@@ -10,8 +10,10 @@ from drf_spectacular.views import (
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
+from . import views
 
 urlpatterns = [
+    path("", views.home),
     # Django Admin
     path("admin/", admin.site.urls),
     # Authentication + Users
