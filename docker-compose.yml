@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    command: uv run python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: doctor_booking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password

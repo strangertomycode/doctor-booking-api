@@ -1,17 +1,17 @@
 import os
 
 scripts = [
-    "register_users.py",
-    "login.py",
-    "doctor_create_availability.py",
-    "list_doctor_slots.py",
-    "book_appointment.py",
-    "my_appointments.py",
-    "doctor_dashboard.py",
-    "update_appointment_status.py",
-    "medical_history.py",
-    "negative_tests.py",
-    "cancel_appointment.py",
+    "tests/register_users.py",
+    "tests/login.py",
+    "tests/doctor_create_availability.py",
+    "tests/list_doctor_slots.py",
+    "tests/book_appointment.py",
+    "tests/my_appointments.py",
+    "tests/doctor_dashboard.py",
+    "tests/update_appointment_status.py",
+    "tests/medical_history.py",
+    "tests/negative_tests.py",
+    "tests/cancel_appointment.py",
 ]
 
 for script in scripts:
