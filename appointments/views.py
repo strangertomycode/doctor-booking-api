@@ -34,6 +34,7 @@ from .permissions import (
     CanManageAppointmentStatus,
     CanCancelAppointment,
 )
+from drf_spectacular.utils import extend_schema
 
 from accounts.models import (
     User,
@@ -41,6 +42,7 @@ from accounts.models import (
 )
 
 
+@extend_schema(tags=["Scheduling"])
 class AvailabilityRuleCreateView(CreateAPIView):
     serializer_class = AvailabilityRuleSerializer
 
@@ -55,6 +57,7 @@ class AvailabilityRuleCreateView(CreateAPIView):
         serializer.save(doctor=self.request.user)
 
 
+@extend_schema(tags=["Scheduling"])
 class MyAvailabilityRulesView(ListAPIView):
     serializer_class = AvailabilityRuleSerializer
 
@@ -74,6 +77,7 @@ class MyAvailabilityRulesView(ListAPIView):
         )
 
 
+@extend_schema(tags=["Scheduling"])
 class DoctorAvailableSlotsView(ListAPIView):
     serializer_class = AvailabilitySlotSerializer
 
@@ -111,6 +115,7 @@ class DoctorAvailableSlotsView(ListAPIView):
         )
 
 
+@extend_schema(tags=["Appointments"])
 class AppointmentCreateView(CreateAPIView):
     serializer_class = AppointmentSerializer
 
@@ -120,6 +125,7 @@ class AppointmentCreateView(CreateAPIView):
     ]
 
 
+@extend_schema(tags=["Appointments"])
 class MyAppointmentsView(ListAPIView):
     queryset = Appointment.objects.none()
     serializer_class = AppointmentSerializer
@@ -159,6 +165,7 @@ class MyAppointmentsView(ListAPIView):
         return queryset.order_by("-created_at")
 
 
+@extend_schema(tags=["Appointments"])
 class AppointmentDetailView(RetrieveAPIView):
     queryset = Appointment.objects.none()
     serializer_class = AppointmentSerializer
@@ -181,6 +188,7 @@ class AppointmentDetailView(RetrieveAPIView):
         )
 
 
+@extend_schema(tags=["Appointments"])
 class AppointmentStatusUpdateView(UpdateAPIView):
     queryset = Appointment.objects.none()
     serializer_class = AppointmentStatusUpdateSerializer
@@ -203,6 +211,7 @@ class AppointmentStatusUpdateView(UpdateAPIView):
         return Appointment.objects.filter(doctor=self.request.user)
 
 
+@extend_schema(tags=["Appointments"])
 class CancelAppointmentView(APIView):
     permission_classes = [
         permissions.IsAuthenticated,
@@ -246,6 +255,7 @@ class CancelAppointmentView(APIView):
         )
 
 
+@extend_schema(tags=["Doctor Dashboard"])
 class DoctorAppointmentDashboardView(ListAPIView):
     queryset = Appointment.objects.none()
     serializer_class = AppointmentSerializer
@@ -289,6 +299,7 @@ class DoctorAppointmentDashboardView(ListAPIView):
         )
 
 
+@extend_schema(tags=["Medical Records"])
 class PatientMedicalHistoryView(RetrieveAPIView):
     permission_classes = [
         permissions.IsAuthenticated,
