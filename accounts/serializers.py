@@ -61,6 +61,7 @@ class RegisterSerializer(ModelSerializer):
         model = User
 
         fields = [
+            "id",
             "email",
             "password",
             "full_name",
