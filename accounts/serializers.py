@@ -96,6 +96,11 @@ class RegisterSerializer(ModelSerializer):
         user = User.objects.create_user(password=password, **validated_data)
 
         if user.role == User.DOCTOR and doctor_profile_data:
-            DoctorProfile.objects.create(user=user, **doctor_profile_data)
+            # DoctorProfile.objects.create(user=user, **doctor_profile_data)
+            DoctorProfile.objects.create(
+                user=user,
+                verification_status=DoctorProfile.APPROVED,
+                **doctor_profile_data,
+            )
 
         return user
