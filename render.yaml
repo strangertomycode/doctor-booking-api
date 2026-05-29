@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: doctor-booking-api
+    runtime: docker
+    plan: free
+
+    region: singapore
+
+    buildCommand: ""
+
+    startCommand: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn core.wsgi:application --bind 0.0.0.0:$PORT"
+
+    envVars:
+      - key: DEBUG
+        value: "False"
+
+      - key: SECRET_KEY
+        sync: false
+
+      - key: DB_NAME
+        sync: false
+
+      - key: DB_USER
+        sync: false
+
+      - key: DB_PASSWORD
+        sync: false
+
+      - key: DB_HOST
+        sync: false
+
+      - key: DB_PORT
+        value: "5432"
+
+      - key: ALLOWED_HOSTS
+        sync: false
