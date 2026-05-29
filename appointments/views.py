@@ -41,6 +41,8 @@ from accounts.models import (
     DoctorProfile,
 )
 
+from rest_framework.exceptions import PermissionDenied
+
 
 @extend_schema(tags=["Scheduling"])
 class AvailabilityRuleCreateView(CreateAPIView):
@@ -53,8 +55,12 @@ class AvailabilityRuleCreateView(CreateAPIView):
     ]
 
     def perform_create(self, serializer):
+        user = self.request.user
 
-        serializer.save(doctor=self.request.user)
+        if user.role != "doctor":
+            raise PermissionDenied("Only doctors can create availability rules")
+
+        serializer.save(doctor=user.doctor_profile)
 
 
 @extend_schema(tags=["Scheduling"])
