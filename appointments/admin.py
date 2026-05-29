@@ -11,7 +11,7 @@ class AvailabilityRuleAdmin(admin.ModelAdmin):
 
 @admin.register(AvailabilitySlot)
 class AvailabilitySlotAdmin(admin.ModelAdmin):
-    list_display = ("doctor", "date", "start_time", "end_time", "is_booked")
+    list_display = ("id", "doctor", "date", "start_time", "end_time", "is_booked")
     list_filter = ("date", "is_booked", "doctor")
     search_fields = ("doctor__full_name",)
 
@@ -19,6 +19,7 @@ class AvailabilitySlotAdmin(admin.ModelAdmin):
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "patient",
         "doctor",
         "status",
