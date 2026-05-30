@@ -1,8 +1,3 @@
-
-# Project Title
-
-A brief description of what this project does and who it's for
-
 # Doctor Booking API
 
 A REST API for doctor appointment booking, built with Django REST Framework. Supports patient-doctor workflows, rule-based slot generation, and JWT authentication.
@@ -31,16 +26,16 @@ Doctors access a structured dashboard of scheduled appointments. Verified doctor
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Django, Django REST Framework |
-| Authentication | SimpleJWT |
-| Database | PostgreSQL (Neon) |
+| Layer             | Technology                          |
+| ----------------- | ----------------------------------- |
+| Framework         | Django, Django REST Framework       |
+| Authentication    | SimpleJWT                           |
+| Database          | PostgreSQL (Neon)                   |
 | API Documentation | drf-spectacular (OpenAPI / Swagger) |
-| Static Files | WhiteNoise |
-| Server | Gunicorn |
-| Containerisation | Docker |
-| Hosting | Render |
+| Static Files      | WhiteNoise                          |
+| Server            | Gunicorn                            |
+| Containerisation  | Docker                              |
+| Hosting           | Render                              |
 
 ---
 
@@ -48,36 +43,36 @@ Doctors access a structured dashboard of scheduled appointments. Verified doctor
 
 ### Authentication
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/auth/register/` | Register as patient or doctor |
-| POST | `/auth/login/` | Obtain access and refresh tokens |
-| POST | `/auth/refresh/` | Refresh access token |
-| GET | `/auth/me/` | Retrieve current user details |
+| Method | Endpoint          | Description                      |
+| ------ | ----------------- | -------------------------------- |
+| POST   | `/auth/register/` | Register as patient or doctor    |
+| POST   | `/auth/login/`    | Obtain access and refresh tokens |
+| POST   | `/auth/refresh/`  | Refresh access token             |
+| GET    | `/auth/me/`       | Retrieve current user details    |
 
 ### Availability
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | `/appointments/availability-rules/` | Doctor | Create a weekly availability rule |
-| GET | `/appointments/availability-rules/mine/` | Doctor | List own availability rules |
-| GET | `/appointments/doctors/<id>/slots/` | Patient | List available slots for a doctor |
+| Method | Endpoint                                 | Access  | Description                       |
+| ------ | ---------------------------------------- | ------- | --------------------------------- |
+| POST   | `/appointments/availability-rules/`      | Doctor  | Create a weekly availability rule |
+| GET    | `/appointments/availability-rules/mine/` | Doctor  | List own availability rules       |
+| GET    | `/appointments/doctors/<id>/slots/`      | Patient | List available slots for a doctor |
 
 ### Appointments
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | `/appointments/` | Patient | Book an available slot |
-| GET | `/appointments/mine/` | Any | List own appointments |
-| GET | `/appointments/<id>/` | Any | Retrieve appointment details |
-| POST | `/appointments/<id>/cancel/` | Any | Cancel an appointment |
+| Method | Endpoint                     | Access  | Description                  |
+| ------ | ---------------------------- | ------- | ---------------------------- |
+| POST   | `/appointments/`             | Patient | Book an available slot       |
+| GET    | `/appointments/mine/`        | Any     | List own appointments        |
+| GET    | `/appointments/<id>/`        | Any     | Retrieve appointment details |
+| POST   | `/appointments/<id>/cancel/` | Any     | Cancel an appointment        |
 
 ### Dashboard & Records
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | `/appointments/doctor/dashboard/` | Doctor | View scheduled appointments |
-| GET | `/appointments/patients/<id>/medical-history/` | Verified Doctor | Access patient medical history |
+| Method | Endpoint                                       | Access          | Description                    |
+| ------ | ---------------------------------------------- | --------------- | ------------------------------ |
+| GET    | `/appointments/doctor/dashboard/`              | Doctor          | View scheduled appointments    |
+| GET    | `/appointments/patients/<id>/medical-history/` | Verified Doctor | Access patient medical history |
 
 ---
 
